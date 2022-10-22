@@ -393,6 +393,9 @@ namespace WebSocketSharp.Server
 
     private string checkHandshakeRequest (WebSocketContext context)
     {
+      bool? canOpen = CanOpen(context);
+      if (canOpen != null) return (bool)canOpen ? null : "Connection refused";
+
       if (_originValidator != null) {
         if (!_originValidator (context.Origin))
           return "It includes no Origin header or an invalid one.";
@@ -831,6 +834,20 @@ namespace WebSocketSharp.Server
     /// </summary>
     protected virtual void OnOpen ()
     {
+    }
+
+    /// <summary>
+    /// Called when a handshake request is made to the service. Returning <see langword="true"/> or 
+    /// <see langword="false"/> will accept / refuse the connection. Returning <see langword="null"/>
+    /// will try to validate the connection using the <see cref="CookiesValidator"/> and <see cref="OriginValidator"/>
+    /// of the service.
+    /// </summary>
+    /// <param name="ctx">
+    /// The context of the handshake
+    /// </param>
+    protected virtual bool? CanOpen(WebSocketContext ctx)
+    {
+      return null;
     }
 
     /// <summary>
